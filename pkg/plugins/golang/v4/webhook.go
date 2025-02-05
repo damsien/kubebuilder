@@ -19,6 +19,7 @@ package v4
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/pflag"
@@ -103,6 +104,9 @@ func (p *createWebhookSubcommand) BindFlags(fs *pflag.FlagSet) {
 
 	fs.BoolVar(&p.force, "force", false,
 		"attempt to create resource even if it already exists")
+
+	fs.StringVar(&p.options.WebhookCustomPath, "custom-path", "",
+		"if set, use the defined custom path for the webhooks")
 }
 
 func (p *createWebhookSubcommand) InjectConfig(c config.Config) error {
@@ -124,6 +128,16 @@ func (p *createWebhookSubcommand) InjectResource(res *resource.Resource) error {
 			return fmt.Errorf("invalid spoke version: %s", spoke)
 		}
 		res.Webhooks.Spoke = append(res.Webhooks.Spoke, spoke)
+	}
+
+	// Check if the custom webhook path respect the regex
+	if p.options.WebhookCustomPath != "" {
+		const webhookPathStringValidation = `^((/[a-zA-Z0-9-_]+)+|/)$`
+		var validWebhookPathRegex = regexp.MustCompile(webhookPathStringValidation)
+		if !validWebhookPathRegex.MatchString(p.options.WebhookCustomPath) {
+			return errors.New("customPath \"" + p.options.WebhookCustomPath + "\" does not match this regex: " +
+				webhookPathStringValidation)
+		}
 	}
 
 	p.options.UpdateResource(p.resource, p.config)

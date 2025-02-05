@@ -73,6 +73,9 @@ type Options struct {
 	DoValidation bool
 	DoConversion bool
 
+	// WebhookCustomPath defines the custom path that will be used by the scaffolded webhooks
+	WebhookCustomPath string
+
 	// Spoke versions for conversion webhook
 	Spoke []string
 }
@@ -111,6 +114,10 @@ func (opts Options) UpdateResource(res *resource.Resource, c config.Config) {
 			res.Webhooks.Conversion = true
 			res.Webhooks.Spoke = opts.Spoke
 		}
+	}
+
+	if opts.WebhookCustomPath != "" {
+		res.Webhooks.CustomPath = opts.WebhookCustomPath
 	}
 
 	if len(opts.ExternalAPIPath) > 0 {

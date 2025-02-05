@@ -66,6 +66,10 @@ var _ = Describe("kubebuilder", func() {
 			By("removing controller image and working dir")
 			kbc.Destroy()
 		})
+		It("should generate a runnable project using the custom path for the webhooks", func() {
+			GenerateV4WithWebhookCustomPath(kbc)
+			Run(kbc, true, false, false, true, false)
+		})
 		It("should generate a runnable project", func() {
 			GenerateV4(kbc)
 			Run(kbc, true, false, false, true, false)
@@ -326,7 +330,9 @@ func Run(kbc *utils.TestContext, hasWebhook, isToUseInstaller, isToUseHelmChart,
 	Expect(err).To(Not(HaveOccurred()))
 
 	applySample := func(g Gomega) {
-		g.Expect(kbc.Kubectl.Apply(true, "-f", sampleFile)).
+		_, err := kbc.Kubectl.Apply(true, "-f", sampleFile)
+		fmt.Println(err)
+		g.Expect(err).
 			Error().NotTo(HaveOccurred())
 	}
 	Eventually(applySample, time.Minute, time.Second).Should(Succeed())

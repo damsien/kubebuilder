@@ -35,6 +35,9 @@ type Webhooks struct {
 	Conversion bool `json:"conversion,omitempty"`
 
 	Spoke []string `json:"spoke,omitempty"`
+
+	// CustomPath specifies a custom path for the whole webhook
+	CustomPath string `json:"customPath,omitempty"`
 }
 
 // Validate checks that the Webhooks is valid.
